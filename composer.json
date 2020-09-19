@@ -1,0 +1,89 @@
+{
+    "name": "coffeephp/gzip",
+    "description": "Provides classes for handling GZIP compression.",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Danny Damsky",
+            "email": "dannydamsky99@gmail.com"
+        }
+    ],
+    "keywords": [
+        "coffeephp",
+        "coffee",
+        "php",
+        "compress",
+        "compression",
+        "compressor",
+        "uncompress",
+        "uncompression",
+        "uncompressor",
+        "decompress",
+        "decompression",
+        "decompressor",
+        "method",
+        "archive",
+        "tar",
+        "tarball",
+        "gzip",
+        "gz"
+    ],
+    "require": {
+        "php": ">=7.4",
+        "ext-apcu": "*",
+        "coffeephp/tarball": "1.*"
+    },
+    "require-dev": {
+        "coffeephp/component-registry": "1.*",
+        "coffeephp/quality-tools": "1.*",
+        "roave/security-advisories": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "CoffeePhp\\Gzip\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CoffeePhp\\Gzip\\Test\\Integration\\": "test/Integration/",
+            "CoffeePhp\\Gzip\\Test\\Unit\\": "test/Unit/"
+        }
+    },
+    "suggest": {
+        "coffeephp/component-registry": "For integration of the component with the CoffeePHP framework."
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "apcu-autoloader": true
+    },
+    "extra": {
+        "coffeephp": {
+            "registry": [
+                {
+                    "registrar": "CoffeePhp\\Gzip\\Integration\\GzipComponentRegistrar",
+                    "depends": [
+                        "CoffeePhp\\Tarball\\Integration\\TarballComponentRegistrar"
+                    ]
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "coffeephp:exec:phpcbf": "coffeephp_exec_phpcbf",
+        "coffeephp:exec:phpcs": "coffeephp_exec_phpcs",
+        "coffeephp:exec:phpmd": "coffeephp_exec_phpmd",
+        "coffeephp:exec:phpstan-analyse": "coffeephp_exec_phpstan_analyse",
+        "coffeephp:exec:phpunit": "coffeephp_exec_phpunit --testsuite unit,integration",
+        "coffeephp:exec:psalm": "coffeephp_exec_psalm",
+        "coffeephp:exec:psalm-alter": "coffeephp_exec_psalm_alter",
+        "coffeephp:exec:publish": "coffeephp_exec_publish",
+        "coffeephp:exec:analyse": [
+            "@coffeephp:exec:phpunit",
+            "@coffeephp:exec:psalm",
+            "@coffeephp:exec:phpcs",
+            "@coffeephp:exec:phpstan-analyse",
+            "@coffeephp:exec:phpmd"
+        ]
+    }
+}

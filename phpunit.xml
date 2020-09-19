@@ -1,0 +1,14 @@
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         defaultTestSuite="unit">
+  <testsuites>
+    <testsuite name="unit">
+      <directory phpVersion="7.4">test/Unit/</directory>
+    </testsuite>
+    <testsuite name="integration">
+      <directory phpVersion="7.4">test/Integration/</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>
