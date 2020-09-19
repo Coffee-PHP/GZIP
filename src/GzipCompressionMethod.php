@@ -31,7 +31,6 @@ use CoffeePhp\FileSystem\Contract\Data\Path\FileInterface;
 use CoffeePhp\FileSystem\Contract\Data\Path\PathInterface;
 use CoffeePhp\FileSystem\Contract\Data\Path\PathNavigatorInterface;
 use CoffeePhp\FileSystem\Contract\FileManagerInterface;
-use CoffeePhp\FileSystem\Data\Stream\FileStream;
 use CoffeePhp\FileSystem\Enum\AccessMode;
 use CoffeePhp\FileSystem\Enum\PathConflictStrategy;
 use CoffeePhp\FileSystem\Exception\FileSystemException;

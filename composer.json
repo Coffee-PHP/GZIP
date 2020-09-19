@@ -31,6 +31,7 @@
     "require": {
         "php": ">=7.4",
         "ext-apcu": "*",
+        "ext-zlib": "*",
         "coffeephp/tarball": "1.*"
     },
     "require-dev": {
