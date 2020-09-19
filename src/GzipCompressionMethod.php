@@ -291,7 +291,7 @@ final class GzipCompressionMethod extends AbstractCompressionMethod implements G
         try {
             $absolutePath = (string)$compressedFile;
             if (!$compressedFile->exists()) {
-                throw new GzipUncompressException("The given compressed file does not exist: {$compressedFile}");
+                throw new GzipUncompressException("The given compressed file does not exist: {$absolutePath}");
             }
             $extension = self::EXTENSION_GZIP;
             if (!$this->isFullPath($absolutePath, $extension)) {
