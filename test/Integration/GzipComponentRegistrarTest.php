@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace CoffeePhp\Tarball\Gzip\Integration;
+namespace CoffeePhp\Gzip\Test\Integration;
 
 use CoffeePhp\Compress\Contract\CompressorInterface;
 use CoffeePhp\Compress\Contract\FileCompressorInterface;

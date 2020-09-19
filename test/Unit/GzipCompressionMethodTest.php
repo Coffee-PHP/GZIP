@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace Gzip\Unit;
+namespace CoffeePhp\Gzip\Test\Unit;
 
 use CoffeePhp\FileSystem\Contract\Data\Path\DirectoryInterface;
 use CoffeePhp\FileSystem\Contract\Data\Path\FileInterface;
