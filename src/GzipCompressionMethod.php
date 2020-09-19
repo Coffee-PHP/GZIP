@@ -33,7 +33,6 @@ use CoffeePhp\FileSystem\Contract\Data\Path\PathNavigatorInterface;
 use CoffeePhp\FileSystem\Contract\FileManagerInterface;
 use CoffeePhp\FileSystem\Enum\AccessMode;
 use CoffeePhp\FileSystem\Enum\PathConflictStrategy;
-use CoffeePhp\FileSystem\Exception\FileSystemException;
 use CoffeePhp\Gzip\Contract\GzipCompressionMethodInterface;
 use CoffeePhp\Gzip\Exception\GzipCompressException;
 use CoffeePhp\Gzip\Exception\GzipUncompressException;
@@ -159,7 +158,7 @@ final class GzipCompressionMethod extends AbstractCompressionMethod implements G
             return $this->uncompressFile($compressedPath);
         }
 
-        throw new FileSystemException(
+        throw new GzipUncompressException(
             "Failed to uncompress path: {$absolutePath} ; Reason: Unknown file extension provided."
         );
     }
