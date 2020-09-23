@@ -46,8 +46,6 @@ use function gzeof;
 use function gzopen;
 use function gzread;
 use function gzwrite;
-use function is_file;
-use function unlink;
 
 /**
  * Class GzipCompressionMethod
@@ -276,8 +274,8 @@ final class GzipCompressionMethod extends AbstractCompressionMethod implements G
             if (isset($gzipStream) && $gzipStream !== false) { // @phpstan-ignore-line
                 gzclose($gzipStream);
                 unset($gzipStream);
-                if (is_file((string)$destination)) {
-                    unlink((string)$destination);
+                if ($destination->exists()) {
+                    $this->fileManager->getPath($destination)->delete();
                 }
             }
         }
@@ -352,8 +350,8 @@ final class GzipCompressionMethod extends AbstractCompressionMethod implements G
             if (isset($fileStream) && $fileStream->isOpen()) { // @phpstan-ignore-line
                 $fileStream->close();
                 unset($fileStream);
-                if (is_file((string)$destination)) {
-                    unlink((string)$destination);
+                if ($destination->exists()) {
+                    $this->fileManager->getPath($destination)->delete();
                 }
             }
         }
