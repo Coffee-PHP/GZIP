@@ -1,5 +1,7 @@
 # Coffee PHP - GZIP
 
+![Build](https://github.com/Coffee-PHP/GZIP/workflows/Build/badge.svg)
+
 Provides classes for handling GZIP compression.
 
 ```

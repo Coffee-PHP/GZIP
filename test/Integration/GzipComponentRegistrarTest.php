@@ -25,19 +25,12 @@ declare(strict_types=1);
 
 namespace CoffeePhp\Gzip\Test\Integration;
 
-use CoffeePhp\Compress\Contract\CompressorInterface;
-use CoffeePhp\Compress\Contract\FileCompressorInterface;
-use CoffeePhp\CompressionMethod\Contract\CompressionMethodInterface;
-use CoffeePhp\CompressionMethod\Contract\DirectoryCompressionMethodInterface;
-use CoffeePhp\CompressionMethod\Contract\PathCompressionMethodInterface;
-use CoffeePhp\CompressionMethod\Contract\StringCompressionMethodInterface;
+use CoffeePhp\ComponentRegistry\ComponentRegistry;
 use CoffeePhp\Di\Container;
-use CoffeePhp\FileSystem\Integration\FileSystemComponentRegistrar;
 use CoffeePhp\Gzip\Contract\GzipCompressionMethodInterface;
 use CoffeePhp\Gzip\GzipCompressionMethod;
 use CoffeePhp\Gzip\Integration\GzipComponentRegistrar;
 use CoffeePhp\Tarball\Integration\TarballComponentRegistrar;
-use CoffeePhp\Uncompress\Contract\UncompressorInterface;
 use PHPUnit\Framework\TestCase;
 
 use function PHPUnit\Framework\assertInstanceOf;
@@ -59,55 +52,16 @@ final class GzipComponentRegistrarTest extends TestCase
     public function testRegister(): void
     {
         $di = new Container();
-        $fileSystemRegistrar = new FileSystemComponentRegistrar();
-        $fileSystemRegistrar->register($di);
-        $tarballRegistrar = new TarballComponentRegistrar();
-        $tarballRegistrar->register($di);
-        $registrar = new GzipComponentRegistrar();
-        $registrar->register($di);
+        $componentRegistry = new ComponentRegistry($di);
+        $componentRegistry->register(TarballComponentRegistrar::class);
+        $componentRegistry->register(GzipComponentRegistrar::class);
 
-        assertTrue($di->has(CompressorInterface::class));
-        assertTrue($di->has(UncompressorInterface::class));
-        assertTrue($di->has(StringCompressionMethodInterface::class));
-        assertTrue($di->has(PathCompressionMethodInterface::class));
-        assertTrue($di->has(FileCompressorInterface::class));
-        assertTrue($di->has(DirectoryCompressionMethodInterface::class));
-        assertTrue($di->has(CompressionMethodInterface::class));
         assertTrue($di->has(GzipCompressionMethodInterface::class));
         assertTrue($di->has(GzipCompressionMethod::class));
 
         assertInstanceOf(
             GzipCompressionMethod::class,
             $di->get(GzipCompressionMethod::class)
-        );
-
-        assertSame(
-            $di->get(GzipCompressionMethodInterface::class),
-            $di->get(CompressorInterface::class)
-        );
-        assertSame(
-            $di->get(GzipCompressionMethodInterface::class),
-            $di->get(UncompressorInterface::class)
-        );
-        assertSame(
-            $di->get(GzipCompressionMethodInterface::class),
-            $di->get(StringCompressionMethodInterface::class)
-        );
-        assertSame(
-            $di->get(GzipCompressionMethodInterface::class),
-            $di->get(PathCompressionMethodInterface::class)
-        );
-        assertSame(
-            $di->get(GzipCompressionMethodInterface::class),
-            $di->get(FileCompressorInterface::class)
-        );
-        assertSame(
-            $di->get(GzipCompressionMethodInterface::class),
-            $di->get(DirectoryCompressionMethodInterface::class)
-        );
-        assertSame(
-            $di->get(GzipCompressionMethodInterface::class),
-            $di->get(CompressionMethodInterface::class)
         );
         assertSame(
             $di->get(GzipCompressionMethod::class),

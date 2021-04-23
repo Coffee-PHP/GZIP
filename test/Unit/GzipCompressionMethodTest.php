@@ -19,24 +19,25 @@
  * @package coffeephp\gzip
  * @author Danny Damsky <dannydamsky99@gmail.com>
  * @since 2020-09-19
+ * @noinspection StaticInvocationViaThisInspection
  */
 
 declare(strict_types=1);
 
 namespace CoffeePhp\Gzip\Test\Unit;
 
-use CoffeePhp\FileSystem\Contract\Data\Path\DirectoryInterface;
-use CoffeePhp\FileSystem\Contract\Data\Path\FileInterface;
-use CoffeePhp\FileSystem\Data\Path\PathNavigator;
-use CoffeePhp\FileSystem\FileManager;
 use CoffeePhp\Gzip\GzipCompressionMethod;
+use CoffeePhp\QualityTools\TestCase;
 use CoffeePhp\Tarball\TarballCompressionMethod;
-use Faker\Factory;
-use Faker\Generator;
-use PHPUnit\Framework\TestCase;
 
+use function file_get_contents;
+use function is_dir;
+use function is_file;
 use function PHPUnit\Framework\assertSame;
-use function PHPUnit\Framework\assertTrue;
+use function rmdir;
+use function unlink;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Class GzipCompressionMethodTest
@@ -47,103 +48,43 @@ use function PHPUnit\Framework\assertTrue;
  */
 final class GzipCompressionMethodTest extends TestCase
 {
-    private Generator $faker;
-    private FileManager $fileManager;
     private GzipCompressionMethod $gzip;
-    private DirectoryInterface $testDirectory;
-    private FileInterface $testFile;
+    private string $testDirectory;
+    private string $testFile;
     private string $uniqueString;
 
     /**
-     * GzipCompressionMethodTest constructor.
-     * @param string|null $name
-     * @param array $data
-     * @param string $dataName
+     * @before
      */
-    public function __construct(?string $name = null, array $data = [], $dataName = '')
+    public function setupDependencies(): void
     {
-        parent::__construct($name, $data, $dataName);
-        $this->faker = Factory::create();
-        $this->fileManager = new FileManager();
-        $this->gzip = new GzipCompressionMethod(
-            $this->fileManager,
-            new TarballCompressionMethod($this->fileManager)
-        );
-    }
-
-    /**
-     * @inheritDoc
-     * @noinspection PhpUndefinedMethodInspection
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $testDirectoryPath = (new PathNavigator(__DIR__))->abc();
-        $testFilePath = (clone $testDirectoryPath)
-            ->def()->ghi()->jkl()->mno()->pqr()->stu()->vwx()->yz()->down('file.txt');
-        $this->testDirectory = $this->fileManager->createDirectory($testDirectoryPath);
-        $this->testFile = $this->fileManager->createFile($testFilePath);
-
-        // Generate unique string.
+        $this->gzip = new GzipCompressionMethod(new TarballCompressionMethod());
+        $this->testDirectory = __DIR__ . DIRECTORY_SEPARATOR . 'temp';
+        $this->testFile = $this->testDirectory . DIRECTORY_SEPARATOR . 'file.txt';
         $uniqueString = '';
-        for ($i = 0; $i < $this->faker->numberBetween(50, 9000); ++$i) {
-            $uniqueString .= $this->faker->realText();
-            $uniqueString .= $this->faker->md5;
-            $uniqueString .= $this->faker->regexify('[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}');
+        for ($i = 0; $i < $this->getFaker()->numberBetween(50, 9000); ++$i) {
+            $uniqueString .= $this->getFaker()->realText();
+            $uniqueString .= $this->getFaker()->md5;
+            $uniqueString .= $this->getFaker()->regexify('[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}');
         }
         $this->uniqueString = $uniqueString;
-
-        $this->testFile->write($this->uniqueString);
+        $this->assertNotFalse(mkdir($this->testDirectory));
+        $this->assertNotFalse(file_put_contents($this->testFile, $this->uniqueString));
     }
 
     /**
-     * @inheritDoc
+     * @after
      */
-    protected function tearDown(): void
+    public function teardownDependencies(): void
     {
-        parent::tearDown();
-        $this->testDirectory->delete();
-    }
-
-    /**
-     * @see GzipCompressionMethod::compressPath()
-     * @see GzipCompressionMethod::uncompressPath()
-     */
-    public function testPathCompression(): void
-    {
-        $gzippedDirectory = $this->gzip->compressPath($this->testDirectory);
-
-        assertSame(
-            "{$this->testDirectory}.tar.gz",
-            (string)$gzippedDirectory
-        );
-
-        $this->testDirectory->delete();
-
-        $this->gzip->uncompressPath($gzippedDirectory);
-
-        assertTrue(
-            $this->testDirectory->exists() &&
-            $this->testFile->exists() &&
-            $this->testFile->read() === $this->uniqueString
-        );
-
-        $gzippedDirectory->delete();
-
-        $gzippedFile = $this->gzip->compressPath($this->testFile);
-
-        assertSame(
-            "{$this->testFile}.gz",
-            (string)$gzippedFile
-        );
-
-        $this->testFile->delete();
-
-        $this->gzip->uncompressPath($gzippedFile);
-
-        assertTrue($this->testFile->exists() && $this->testFile->read() === $this->uniqueString);
-
-        $gzippedFile->delete();
+        if (is_file($this->testFile)) {
+            $this->assertNotFalse(unlink($this->testFile));
+        }
+        if (is_dir($this->testDirectory)) {
+            $this->assertNotFalse(rmdir($this->testDirectory));
+        }
+        $this->assertFileDoesNotExist($this->testFile);
+        $this->assertDirectoryDoesNotExist($this->testDirectory);
     }
 
     /**
@@ -153,23 +94,20 @@ final class GzipCompressionMethodTest extends TestCase
     public function testDirectoryCompression(): void
     {
         $gzippedDirectory = $this->gzip->compressDirectory($this->testDirectory);
+        $this->assertFileExists($gzippedDirectory);
+        assertSame("$this->testDirectory.tar.gz", $gzippedDirectory);
 
-        assertSame(
-            "{$this->testDirectory}.tar.gz",
-            (string)$gzippedDirectory
-        );
+        $this->teardownDependencies();
 
-        $this->testDirectory->delete();
+        $directory = $this->gzip->uncompressDirectory($gzippedDirectory);
+        $this->assertSame($directory, $this->testDirectory);
 
-        $this->gzip->uncompressDirectory($gzippedDirectory);
+        $this->assertDirectoryExists($this->testDirectory);
+        $this->assertFileExists($this->testFile);
+        $this->assertSame($this->uniqueString, file_get_contents($this->testFile));
 
-        assertTrue(
-            $this->testDirectory->exists() &&
-            $this->testFile->exists() &&
-            $this->testFile->read() === $this->uniqueString
-        );
-
-        $gzippedDirectory->delete();
+        $this->assertNotFalse(unlink($gzippedDirectory));
+        $this->assertFileDoesNotExist($gzippedDirectory);
     }
 
     /**
@@ -179,19 +117,20 @@ final class GzipCompressionMethodTest extends TestCase
     public function testFileCompression(): void
     {
         $gzippedFile = $this->gzip->compressFile($this->testFile);
+        $this->assertFileExists($gzippedFile);
+        assertSame("$this->testFile.gz", $gzippedFile);
 
-        assertSame(
-            "{$this->testFile}.gz",
-            (string)$gzippedFile
-        );
+        $this->assertNotFalse(unlink($this->testFile));
+        $this->assertFileDoesNotExist($this->testFile);
 
-        $this->testFile->delete();
+        $file = $this->gzip->uncompressFile($gzippedFile);
+        $this->assertSame($file, $this->testFile);
 
-        $this->gzip->uncompressFile($gzippedFile);
+        $this->assertFileExists($this->testFile);
+        $this->assertSame($this->uniqueString, file_get_contents($this->testFile));
 
-        assertTrue($this->testFile->exists() && $this->testFile->read() === $this->uniqueString);
-
-        $gzippedFile->delete();
+        $this->assertNotFalse(unlink($gzippedFile));
+        $this->assertFileDoesNotExist($gzippedFile);
     }
 
     /**

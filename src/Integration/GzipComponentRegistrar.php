@@ -26,16 +26,9 @@ declare(strict_types=1);
 namespace CoffeePhp\Gzip\Integration;
 
 use CoffeePhp\ComponentRegistry\Contract\ComponentRegistrarInterface;
-use CoffeePhp\Compress\Contract\CompressorInterface;
-use CoffeePhp\Compress\Contract\FileCompressorInterface;
-use CoffeePhp\CompressionMethod\Contract\CompressionMethodInterface;
-use CoffeePhp\CompressionMethod\Contract\DirectoryCompressionMethodInterface;
-use CoffeePhp\CompressionMethod\Contract\PathCompressionMethodInterface;
-use CoffeePhp\CompressionMethod\Contract\StringCompressionMethodInterface;
 use CoffeePhp\Di\Contract\ContainerInterface;
 use CoffeePhp\Gzip\Contract\GzipCompressionMethodInterface;
 use CoffeePhp\Gzip\GzipCompressionMethod;
-use CoffeePhp\Uncompress\Contract\UncompressorInterface;
 
 /**
  * Class GzipComponentRegistrar
@@ -45,22 +38,20 @@ use CoffeePhp\Uncompress\Contract\UncompressorInterface;
  */
 final class GzipComponentRegistrar implements ComponentRegistrarInterface
 {
+    /**
+     * GzipComponentRegistrar constructor.
+     * @param ContainerInterface $di
+     */
+    public function __construct(private ContainerInterface $di)
+    {
+    }
 
     /**
      * @inheritDoc
      */
-    public function register(ContainerInterface $di): void
+    public function register(): void
     {
-        $di->bind(CompressorInterface::class, GzipCompressionMethodInterface::class);
-        $di->bind(UncompressorInterface::class, GzipCompressionMethodInterface::class);
-
-        $di->bind(StringCompressionMethodInterface::class, GzipCompressionMethodInterface::class);
-        $di->bind(PathCompressionMethodInterface::class, GzipCompressionMethodInterface::class);
-        $di->bind(FileCompressorInterface::class, GzipCompressionMethodInterface::class);
-        $di->bind(DirectoryCompressionMethodInterface::class, GzipCompressionMethodInterface::class);
-        $di->bind(CompressionMethodInterface::class, GzipCompressionMethodInterface::class);
-
-        $di->bind(GzipCompressionMethodInterface::class, GzipCompressionMethod::class);
-        $di->bind(GzipCompressionMethod::class, GzipCompressionMethod::class);
+        $this->di->bind(GzipCompressionMethod::class, GzipCompressionMethod::class);
+        $this->di->bind(GzipCompressionMethodInterface::class, GzipCompressionMethod::class);
     }
 }
